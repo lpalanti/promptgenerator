@@ -8,35 +8,8 @@ st.set_page_config(page_title="Prompt Generator", layout="wide")
 st.markdown("""
     <style>
     .stApp {background-color: #000000; color: #FFFFFF;}
-    .stCheckbox>div {color: #FFFFFF;}
-    .stSelectbox>div {color: #000000;}
-    .prompt-box {border: 1px solid #f63366; padding: 10px; border-radius: 5px; background-color: #1c1c1c; position: fixed; top: 80px; right: 20px; width: 40%; max-height: 80vh; overflow-y: auto;}
+    .prompt-box {border: 1px solid #f63366; padding: 10px; border-radius: 5px; background-color: #1c1c1c; position: fixed; top: 80px; right: 20px; width: 35%; max-height: 80vh; overflow-y: auto;}
     .category-title {color: #f63366; font-weight: bold; font-size: 20px; margin-top: 20px;}
-    .tooltip {
-        position: relative;
-        display: inline-block;
-        border-bottom: 1px dotted white;
-    }
-    .tooltip .tooltiptext {
-        visibility: hidden;
-        width: 120px;
-        background-color: #555;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%;
-        left: 50%;
-        margin-left: -60px;
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-    .tooltip:hover .tooltiptext {
-        visibility: visible;
-        opacity: 1;
-    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -88,17 +61,17 @@ st.title("Prompt Generator")
 st.markdown("Easily create and refine prompts for Stable Diffusion.")
 
 # Sidebar de categorias
+st.sidebar.title("Categories")
 categorias = df["Categoria"].unique()
 for categoria in categorias:
-    with st.expander(categoria):
+    with st.sidebar.expander(categoria):
         itens_base = df[df["Categoria"] == categoria]["Itens"].values[0].split(", ")
         itens_extras = manual_items.get(categoria, [])
         todos_itens = itens_base + itens_extras
 
         for item in todos_itens:
             tooltip = translations.get(item.lower(), "")
-            button_label = f"<div class='tooltip'>{item}<span class='tooltiptext'>{tooltip}</span></div>" if tooltip else item
-            if st.button(button_label, key=f"{categoria}_{item}", help=tooltip):
+            if st.button(item, help=tooltip, key=f"{categoria}_{item}"):
                 if item not in st.session_state.prompt_final:
                     st.session_state.prompt_final.append(item)
 
@@ -139,5 +112,8 @@ if st.button("Save Prompt"):
 st.markdown("### Last 5 Prompts:")
 for past_prompt in st.session_state.historico:
     st.markdown(f"- {past_prompt}")
+
+st.markdown('</div>', unsafe_allow_html=True)
+
 
 st.markdown('</div>', unsafe_allow_html=True)
