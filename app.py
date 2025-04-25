@@ -13,8 +13,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.button("Test Button", help="This is a tooltip!")
-
 # Função para carregar dados persistentes
 def load_persistent_data(file_path, default_data):
     if os.path.exists(file_path):
@@ -117,5 +115,3 @@ for past_prompt in st.session_state.historico:
 
 st.markdown('</div>', unsafe_allow_html=True)
 
-
-st.markdown('</div>', unsafe_allow_html=True)
