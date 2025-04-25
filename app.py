@@ -53,7 +53,7 @@ if "prompt_final" not in st.session_state:
 if "historico" not in st.session_state:
     st.session_state.historico = []
 
-st.title("\ud83d\udd8a\ufe0f Prompt Generator")
+st.title("Prompt Generator")
 st.markdown("Easily create and refine prompts for Stable Diffusion.")
 
 # Colunas para layout
