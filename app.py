@@ -20,6 +20,7 @@ st.markdown("""
     .stSelectbox>div {color: #000000;}
     .prompt-box {border: 1px solid #f63366; padding: 10px; border-radius: 5px; background-color: #1c1c1c;}
     .category-title {color: #f63366; font-weight: bold; font-size: 20px; margin-top: 20px;}
+    .scrollable-prompt {max-height: 300px; overflow-y: auto; border: 1px solid #f63366; padding: 10px; border-radius: 5px; background-color: #1c1c1c;}
     </style>
 """, unsafe_allow_html=True)
 
@@ -85,8 +86,10 @@ with col1:
 with col2:
     st.subheader("Prompt Final")
 
-    # Campo de edição manual
-    prompt_input = st.text_area("Edit manually:", ", ".join(st.session_state.prompt_final), height=200)
+    # Campo de edição manual com rolagem
+    st.markdown('<div class="scrollable-prompt">', unsafe_allow_html=True)
+    prompt_input = st.text_area("Edit manually:", ", ".join(st.session_state.prompt_final), height=200, label_visibility="collapsed")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # Atualizar prompt final ao editar manualmente
     if prompt_input != ", ".join(st.session_state.prompt_final):
@@ -109,4 +112,3 @@ with col2:
     st.markdown("### Last 5 Prompts:")
     for past_prompt in st.session_state.historico:
         st.markdown(f"- {past_prompt}")
-
