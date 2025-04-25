@@ -102,15 +102,9 @@ if st.button("Save Prompt"):
         st.session_state.historico.insert(0, prompt_str)
         st.session_state.historico = st.session_state.historico[:5]  # manter os últimos 5
 
-# Mostrar histórico
+# Mostrar histórico (sempre visível)
 st.markdown("### Last 5 Prompts:")
 for past_prompt in st.session_state.historico:
     st.markdown(f"- {past_prompt}")
 
 st.markdown('</div>', unsafe_allow_html=True)
-
-
-    # Mostrar histórico
-    st.markdown("### Last 5 Prompts:")
-    for past_prompt in st.session_state.historico:
-        st.markdown(f"- {past_prompt}")
