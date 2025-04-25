@@ -31,24 +31,10 @@ ITEMS_FILE = "manual_items.json"
 
 # Carregar o CSV
 def load_data():
-    return pd.read_csv("prompts_limpo.csv")
+    return pd.read_csv("prompts_subcategorias.csv")
 
 df = load_data()
 manual_items = load_persistent_data(ITEMS_FILE, {})
-
-# Dicionário de traduções (exemplos)
-translations = {
-    "forest": "floresta",
-    "city": "cidade",
-    "desert": "deserto",
-    "mountain": "montanha",
-    "river": "rio",
-    "castle": "castelo",
-    "sunset": "pôr do sol",
-    "night": "noite",
-    "dragon": "dragão",
-    "unicorn": "unicôrnio"
-}
 
 # Inicializar estado da sessão
 if "prompt_final" not in st.session_state:
@@ -60,28 +46,35 @@ if "historico" not in st.session_state:
 st.title("Prompt Generator")
 st.markdown("Easily create and refine prompts for Stable Diffusion.")
 
-# Sidebar de categorias
-st.sidebar.title("Categories")
-categorias = df["Categoria"].unique()
-for categoria in categorias:
-    with st.sidebar.expander(categoria):
-        itens_base = df[df["Categoria"] == categoria]["Itens"].values[0].split(", ")
-        itens_extras = manual_items.get(categoria, [])
-        todos_itens = itens_base + itens_extras
+# Blocos principais
+blocos = df["Bloco"].unique()
+for bloco in blocos:
+    st.sidebar.markdown(f"## {bloco}")
+    subcategorias = df[df["Bloco"] == bloco]["Subcategoria"].unique()
 
-        for item in todos_itens:
-            tooltip = translations.get(item.lower(), "")
-            if st.button(item, help=tooltip, key=f"{categoria}_{item}"):
-                if item not in st.session_state.prompt_final:
-                    st.session_state.prompt_final.append(item)
+    for subcategoria in subcategorias:
+        if subcategoria:
+            st.sidebar.markdown(f"### {subcategoria}")
 
-        # Campo para adicionar itens manualmente
-        novo_item = st.text_input(f"Add new item to {categoria}", key=f"input_{categoria}")
-        if st.button(f"Add to {categoria}", key=f"add_{categoria}"):
-            if novo_item and novo_item not in todos_itens:
-                manual_items.setdefault(categoria, []).append(novo_item)
-                save_persistent_data(ITEMS_FILE, manual_items)
-                st.experimental_rerun()
+        categorias = df[(df["Bloco"] == bloco) & (df["Subcategoria"] == subcategoria)]["Categoria"].unique()
+        for categoria in categorias:
+            with st.sidebar.expander(categoria):
+                itens_base = df[df["Categoria"] == categoria]["Prompt Principal"].values
+                itens_extras = manual_items.get(categoria, [])
+                todos_itens = list(itens_base) + itens_extras
+
+                for item in todos_itens:
+                    if st.button(item, key=f"{categoria}_{item}"):
+                        if item not in st.session_state.prompt_final:
+                            st.session_state.prompt_final.append(item)
+
+                # Campo para adicionar itens manualmente
+                novo_item = st.text_input(f"Add new item to {categoria}", key=f"input_{categoria}")
+                if st.button(f"Add to {categoria}", key=f"add_{categoria}"):
+                    if novo_item and novo_item not in todos_itens:
+                        manual_items.setdefault(categoria, []).append(novo_item)
+                        save_persistent_data(ITEMS_FILE, manual_items)
+                        st.experimental_rerun()
 
 # Prompt final fixo
 st.markdown('<div class="prompt-box">', unsafe_allow_html=True)
@@ -114,4 +107,3 @@ for past_prompt in st.session_state.historico:
     st.markdown(f"- {past_prompt}")
 
 st.markdown('</div>', unsafe_allow_html=True)
-
