@@ -4,14 +4,6 @@ import json
 import os
 
 # Configuração do layout
-theme = {
-    "primaryColor": "#f63366",
-    "backgroundColor": "#000000",
-    "secondaryBackgroundColor": "#1c1c1c",
-    "textColor": "#FFFFFF",
-    "font": "sans serif"
-}
-
 st.set_page_config(page_title="Prompt Generator", layout="wide")
 st.markdown("""
     <style>
@@ -20,6 +12,31 @@ st.markdown("""
     .stSelectbox>div {color: #000000;}
     .prompt-box {border: 1px solid #f63366; padding: 10px; border-radius: 5px; background-color: #1c1c1c; position: fixed; top: 80px; right: 20px; width: 40%; max-height: 80vh; overflow-y: auto;}
     .category-title {color: #f63366; font-weight: bold; font-size: 20px; margin-top: 20px;}
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        border-bottom: 1px dotted white;
+    }
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -60px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -46,6 +63,20 @@ def load_data():
 df = load_data()
 manual_items = load_persistent_data(ITEMS_FILE, {})
 
+# Dicionário de traduções (exemplos)
+translations = {
+    "forest": "floresta",
+    "city": "cidade",
+    "desert": "deserto",
+    "mountain": "montanha",
+    "river": "rio",
+    "castle": "castelo",
+    "sunset": "pôr do sol",
+    "night": "noite",
+    "dragon": "dragão",
+    "unicorn": "unicôrnio"
+}
+
 # Inicializar estado da sessão
 if "prompt_final" not in st.session_state:
     st.session_state.prompt_final = []
@@ -65,7 +96,9 @@ for categoria in categorias:
         todos_itens = itens_base + itens_extras
 
         for item in todos_itens:
-            if st.button(item, key=f"{categoria}_{item}"):
+            tooltip = translations.get(item.lower(), "")
+            button_label = f"<div class='tooltip'>{item}<span class='tooltiptext'>{tooltip}</span></div>" if tooltip else item
+            if st.button(button_label, key=f"{categoria}_{item}", help=tooltip):
                 if item not in st.session_state.prompt_final:
                     st.session_state.prompt_final.append(item)
 
@@ -102,7 +135,7 @@ if st.button("Save Prompt"):
         st.session_state.historico.insert(0, prompt_str)
         st.session_state.historico = st.session_state.historico[:5]  # manter os últimos 5
 
-# Mostrar histórico (sempre visível)
+# Mostrar histórico
 st.markdown("### Last 5 Prompts:")
 for past_prompt in st.session_state.historico:
     st.markdown(f"- {past_prompt}")
